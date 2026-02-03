@@ -1,0 +1,27 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build release bundle
+        run: |
+          mkdir -p dist
+          chmod +x namely-secscan.sh
+          tar -czf dist/namely-secscan-${GITHUB_REF_NAME}.tar.gz namely-secscan.sh README.md LICENSE CHANGELOG.md
+          sha256sum dist/namely-secscan-${GITHUB_REF_NAME}.tar.gz > dist/namely-secscan-${GITHUB_REF_NAME}.tar.gz.sha256
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/namely-secscan-${{ github.ref_name }}.tar.gz
+            dist/namely-secscan-${{ github.ref_name }}.tar.gz.sha256
